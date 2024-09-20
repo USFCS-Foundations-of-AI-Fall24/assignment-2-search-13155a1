@@ -26,8 +26,11 @@ class RoverState :
 
     ## you do this.
     def __eq__(self, other):
-       pass
-
+        return (self.loc == other.loc
+            and self.sample_extracted == other.sample_extracted
+            and self.holding_sample == other.holding_sample
+            and self.charged == other.charged
+            and self.prev == self.prev)
 
     def __repr__(self):
         return (f"Location: {self.loc}\n" +
