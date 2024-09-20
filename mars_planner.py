@@ -17,9 +17,10 @@ from copy import deepcopy
 from search_algorithms import breadth_first_search
 
 class RoverState :
-    def __init__(self, loc="station", sample_extracted=False, holding_sample=False, charged=False):
+    def __init__(self, loc="station", sample_extracted=False, holding_tool=False, holding_sample=False, charged=False):
         self.loc = loc
         self.sample_extracted=sample_extracted
+        self.holding_tool = holding_tool
         self.holding_sample = holding_sample
         self.charged=charged
         self.prev = None
@@ -53,6 +54,24 @@ class RoverState :
         return succ
 
 ## our actions will be functions that return a new state.
+def pick_up_tool(state):
+    r2 = deepcopy(state)
+    r2.holding_tool = True
+    r2.prev = state
+    return r2
+
+def drop_tool(state):
+    r2 = deepcopy(state)
+    r2.holding_tool = False
+    r2.prev = state
+    return r2
+
+def use_tool(state):
+    r2 = deepcopy(state)
+    if state.holding_tool and state.loc == "sample":
+        r2.sample_extracted = True
+    r2.prev = state
+    return r2
 
 def move_to_sample(state) :
     r2 = deepcopy(state)
