@@ -38,18 +38,18 @@ def breadth_first_search(startState, action_list, goal_test, use_closed_list=Tru
 ### Note the similarity to BFS - the only difference is the search queue
 
 ## use the limit parameter to implement depth-limited search
-def depth_first_search(startState, action_list, goal_test, use_closed_list=True,limit=0) :
+def depth_first_search(startState, action_list, goal_test, use_closed_list=True, limit=0) :
     search_queue = deque()
     closed_list = {}
 
     state_count = 0
 
-    search_queue.append((startState,""))
+    search_queue.append((startState, "", 0))
     if use_closed_list :
         closed_list[startState] = True
     while len(search_queue) > 0 :
-        ## this is a (state, "action") tuple
-        next_state = search_queue.pop()
+        ## this is a (state, "action", depth) tuple
+        next_state, action, depth = search_queue.pop()
         state_count += 1
         if goal_test(next_state[0]):
             print("Goal found")
@@ -60,6 +60,8 @@ def depth_first_search(startState, action_list, goal_test, use_closed_list=True,
                 print(ptr)
             return next_state
         else :
+            if depth >= limit:
+                continue
             successors = next_state[0].successors(action_list)
             if use_closed_list :
                 successors = [item for item in successors
