@@ -100,10 +100,19 @@ action_list = [charge, drop_sample, pick_up_sample,
 
 def battery_goal(state) :
     return state.loc == "battery"
-## add your goals here.
+
+def charged_goal(state):
+    return state.charged
+
+def sample_goal(state):
+    return state.sample_extracted and not state.holding_sample
 
 def mission_complete(state) :
-    pass
+    return (
+        battery_goal(state)
+        and charged_goal(state)
+        and sample_goal(state)
+    )
 
 
 if __name__=="__main__" :
