@@ -14,7 +14,7 @@
 ## Charged can be True or False
 
 from copy import deepcopy
-from search_algorithms import breadth_first_search
+from search_algorithms import breadth_first_search, depth_first_search
 
 class RoverState :
     def __init__(self, loc="station", sample_extracted=False, holding_tool=False, holding_sample=False, charged=False):
@@ -24,14 +24,17 @@ class RoverState :
         self.holding_sample = holding_sample
         self.charged=charged
         self.prev = None
+        self.depth = 0
 
     ## you do this.
     def __eq__(self, other):
-        return (self.loc == other.loc
-            and self.sample_extracted == other.sample_extracted
-            and self.holding_sample == other.holding_sample
-            and self.charged == other.charged
-            and self.prev == self.prev)
+        if other is None:
+            return False
+        return (self.loc == other.loc and
+                self.sample_extracted == other.sample_extracted and
+                self.holding_sample == other.holding_sample and
+                self.charged == other.charged and 
+                self.holding_tool == other.holding_tool)
 
     def __repr__(self):
         return (f"Location: {self.loc}\n" +
@@ -115,7 +118,7 @@ def charge(state) :
 
 
 action_list = [charge, drop_sample, pick_up_sample,
-               move_to_sample, move_to_battery, move_to_station]
+               move_to_sample, move_to_battery, move_to_station, pick_up_tool, drop_tool, use_tool]
 
 def battery_goal(state) :
     return state.loc == "battery"
@@ -127,17 +130,66 @@ def sample_goal(state):
     return state.sample_extracted and not state.holding_sample
 
 def mission_complete(state) :
-    return (
-        battery_goal(state)
-        and charged_goal(state)
-        and sample_goal(state)
-    )
+    return (state.loc == "battery"
+            and state.charged
+            and state.sample_extracted
+            and not state.holding_sample)
 
+# question #2-6: problem decomposition
+def move_to_sample_goal(state):
+    return state.loc == "sample"
+
+def remove_sample_goal(state):
+    return state.holding_sample and state.sample_extracted
+
+def return_to_charger_goal(state):
+    return state.loc == "battery"
 
 if __name__=="__main__" :
     s = RoverState()
-    result = breadth_first_search(s, action_list, mission_complete)
-    print(result)
+
+    print("<bfs: mission_complete>")
+    result_bfs = breadth_first_search(s, action_list, mission_complete)
+    print(result_bfs)
+    print()
+    print()
+
+    print("<dfs: misstion_complete>")
+    result_dfs = depth_first_search(s, action_list, mission_complete)
+    print(result_dfs)
+    print()
+    print()
+
+    print("<bfs: problem decomposition>")
+    # move to sample
+    print("1. move to sample")
+    result_move = breadth_first_search(s, action_list, move_to_sample_goal)
+    print()
+    # remove sample
+    print("2. remove sample")
+    result_remove = breadth_first_search(result_move[0], action_list, remove_sample_goal)
+    print()
+    # return to charger
+    print("3. return to charger")
+    result_return = breadth_first_search(result_remove[0], action_list, return_to_charger_goal)
+    print()
+    print()
+
+    print("<dfs: problem decomposition>")
+    # move to sample
+    print("1. move to sample")
+    result_move = depth_first_search(s, action_list, move_to_sample_goal)
+    print()
+    # remove sample
+    print("2. remove sample")
+    result_remove = depth_first_search(result_move[0], action_list, remove_sample_goal)
+    print()
+    # return to charger
+    print("3. return to charger")
+    result_return = depth_first_search(result_remove[0], action_list, return_to_charger_goal)
+    print()
+    print()
+
 
 
 
